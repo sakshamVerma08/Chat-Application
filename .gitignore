@@ -1,0 +1,18 @@
+#client node modules folder
+client/node_modules
+
+#server node modules folder
+server/node_modules
+
+#parent directory node modules folder
+node_modules/
+
+#client .env file
+client/.env
+
+#server .env file
+server/.env
+
+
+#parent directory .env file
+.env
