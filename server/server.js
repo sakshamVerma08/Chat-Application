@@ -24,6 +24,8 @@ wss.on("connection", (temp) => {
         client.send(message.toString());
       }
     });
+
+    console.log("Received message: ", message.toString());
   });
 
   temp.on("close", () => {

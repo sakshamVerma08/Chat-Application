@@ -4,6 +4,7 @@ import Messages from "./components/Messages.jsx";
 const App = () => {
   return (
     <>
+      {/* <Navbar /> */}  
       <Messages />
     </>
   );
