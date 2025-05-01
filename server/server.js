@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import http from "http";
 import WebSocket, { WebSocketServer } from "ws";
+import { v4 as uuidv4 } from "uuid";
 const app = express();
 dotenv.config();
 
@@ -11,25 +12,31 @@ app.get("/", (req, res) => {
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server: server });
+const clients = new Map();
+const messages = [];
 
-const clients = new Set();
 wss.on("connection", (temp) => {
+  const clientId = uuidv4();
+
+  clients.set(clientId, temp);
+  console.log("client in map: ", clientId, clients.get(clientId));
   temp.on("error", (err) => console.error(err.message));
 
-  clients.add(temp);
-
+  // runs when the server sends a message.
   temp.on("message", (message) => {
+    const stringMessage = message.toString();
+    console.log(`Received message : ${stringMessage}`);
+
     clients.forEach((client) => {
+      //   Here client is a socket. Basically, the 'temp' thing that we get after connection is our socket. We are storing that socket as value, with a key associated with it, which is the clientId, which actually is a random uuid.
       if (client.readyState === WebSocket.OPEN) {
-        client.send(message.toString());
+        client.send(stringMessage);
       }
     });
-
-    console.log("Received message: ", message.toString());
   });
 
   temp.on("close", () => {
-    clients.delete(temp);
+    clients.delete(clientId);
   });
 
   console.log("New client connected");

@@ -1,12 +1,10 @@
 import React from "react";
-import Navbar from "./components/Navbar.jsx";
-import Messages from "./components/Messages.jsx";
+import MessageList from "./components/MessageList.jsx";
 const App = () => {
   return (
-    <>
-      {/* <Navbar /> */}  
-      <Messages />
-    </>
+    <div>
+      <MessageList />
+    </div>
   );
 };
 
