@@ -27,7 +27,7 @@ const Messages = () => {
     socket.onopen = () => {
       console.log("Connected to the server");
     };
-    socket.onerror = () => {
+    socket.onerror = (err) => {
       console.error("Socket error: ", err);
     };
 
@@ -35,12 +35,11 @@ const Messages = () => {
       try {
         const message = event.data;
         console.log("Received Message: ", message);
+        setMessageArray((prev) => [...prev, message]);
       } catch (err) {
         console.error(err);
         return;
       }
-
-      setMessageArray((prev) => [...prev, message]);
     };
 
     socket.onclose = () => {
@@ -52,8 +51,6 @@ const Messages = () => {
     e.preventDefault();
 
     socketRef.current.send(message);
-
-    setMessageArray((prev) => [...prev, message]);
     setMessage("");
   };
 

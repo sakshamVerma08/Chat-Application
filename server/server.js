@@ -17,19 +17,19 @@ const messages = [];
 
 wss.on("connection", (temp) => {
   const clientId = uuidv4();
-
+  temp.clientId = clientId;
   clients.set(clientId, temp);
-  console.log("client in map: ", clientId, clients.get(clientId));
+
   temp.on("error", (err) => console.error(err.message));
 
   // runs when the server sends a message.
   temp.on("message", (message) => {
     const stringMessage = message.toString();
-    console.log(`Received message : ${stringMessage}`);
+    console.log(`Received message from client ${clientId}: ${stringMessage}`);
 
-    clients.forEach((client) => {
-      //   Here client is a socket. Basically, the 'temp' thing that we get after connection is our socket. We are storing that socket as value, with a key associated with it, which is the clientId, which actually is a random uuid.
-      if (client.readyState === WebSocket.OPEN) {
+    clients.forEach((client, id) => {
+      // Only send to other clients, not the sender
+      if (id !== clientId && client.readyState === WebSocket.OPEN) {
         client.send(stringMessage);
       }
     });
@@ -39,7 +39,7 @@ wss.on("connection", (temp) => {
     clients.delete(clientId);
   });
 
-  console.log("New client connected");
+  console.log(`New client connected with ID: ${clientId}`);
 });
 
 server.listen(process.env.PORT, () => {
