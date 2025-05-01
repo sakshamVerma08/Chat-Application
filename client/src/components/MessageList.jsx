@@ -1,58 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const Messages = () => {
   const [message, setMessage] = useState("");
   const [messageArray, setMessageArray] = useState([]);
-  const clientId = React.useRef(Date.now());
-
+  const [storedMessages, setstoredMessages] = useState([]);
+  // const clientId = React.useRef(Date.now());
+  const socketRef = useRef(null);
   useEffect(() => {
     messageArray.length !== 0
       ? localStorage.setItem("messages", JSON.stringify(messageArray))
       : [];
   }, [messageArray]);
 
-  const handleMessages = (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    setstoredMessages(localStorage.getItem("messages"));
 
-    if (message.trim() === "") return;
+    if (storedMessages) {
+      setMessageArray(storedMessages);
+    }
+  }, []);
 
+  useEffect(() => {
     const socket = new WebSocket("ws://localhost:8080");
+    socketRef.current = socket;
 
     socket.onopen = () => {
-      const messageObject = { clientId: clientId.current, text: message };
-      socket.send(JSON.stringify(messageObject));
+      console.log("Connected to the server");
+    };
+    socket.onerror = () => {
+      console.error("Socket error: ", err);
     };
 
-    socket.onmessage = (e) => {
+    socket.onmessage = (event) => {
       try {
-        const parsedMessage = JSON.parse(e.data);
-
-        if (parsedMessage.clientId && parsedMessage.text) {
-          console.localStorage(
-            "Received message from client: ",
-            parsedMessage.text
-          );
-        }
-
-        WebAssembly.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            try {
-              client.send(JSO.stringify(parsedMessage));
-            } catch (err) {
-              console.error("Error sending message to client:", err.message);
-            }
-          } else {
-            console.error("Can't send message to Disconnected Client", err);
-          }
-        });
+        const message = event.data;
+        console.log("Received Message: ", message);
       } catch (err) {
-        console.error("Error parsing message:", err.message);
+        console.error(err);
+        return;
       }
+
+      setMessageArray((prev) => [...prev, message]);
     };
 
     socket.onclose = () => {
       console.log("Disconnected from the server");
     };
+  }, []);
+
+  const handleMessages = (e) => {
+    e.preventDefault();
+
+    socketRef.current.send(message);
 
     setMessageArray((prev) => [...prev, message]);
     setMessage("");
@@ -61,12 +60,12 @@ const Messages = () => {
   return (
     <div className="w-screen h-screen flex flex-col justify-between bg-gray-100">
       {/* Chat Header */}
-      <div className="bg-blue-600 text-white text-center py-4 text-xl font-semibold">
+      <div className="bg-blue-600 h-12  text-white text-center py-4 text-xl font-semibold">
         Chat Application
       </div>
 
       {/* Messages Section */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto mb-3 space-y-4">
         {messageArray.length !== 0 ? (
           messageArray.map((message, index) => (
             <div
@@ -87,23 +86,23 @@ const Messages = () => {
             </div>
           ))
         ) : (
-          <div className="text-center text-gray-500">No messages yet</div>
+          <div className="text-center 0 text-gray-500">No messages yet</div>
         )}
       </div>
 
       {/* Input Section */}
-      <div className="bg-gray-200 p-4">
+      <div className="bg-gray-200 p-4 ">
         <form className="flex items-center space-x-4" onSubmit={handleMessages}>
           <input
             type="text"
-            className="flex-1 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 w-1/2 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Type your message..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition"
+            className="bg-blue-500 w-16 text-white px-6 p-2 rounded-lg hover:bg-blue-600 transition"
           >
             Send
           </button>
