@@ -69,22 +69,22 @@ const Messages = () => {
       </div>
 
       {/* Messages Section */}
-      <div className="flex-auto overflow-y-auto mb-3 space-y-4 ">
+      <div className="flex-auto overflow-y-auto mb-3 space-y-12  p-8 ">
         {messageArray.length !== 0 ? (
           messageArray.map((message, index) => (
             <div
               key={index}
-              className={`flex ${
+              className={`flex  bg-orange-500 h-auto ${
                 index % 2 === 0 ? "justify-start" : "justify-end"
               }`}
             >
               {/* The following is the message box div*/}
               <div
-                className={`p-3 rounded-lg shadow-md ${
+                className={` rounded-lg shadow-md  ${
                   index % 2 === 0
                     ? "bg-blue-500 text-white"
                     : "bg-green-500 text-white"
-                } max-w-xs`}
+                } max-w-screen max-h-12 h-auto px-3.5 `}
               >
                 {message}
               </div>
