@@ -25,7 +25,7 @@ const Messages = () => {
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log("Connected to the server");
+      console.log(" Client Connected to the server");
     };
     socket.onerror = (err) => {
       console.error("Socket error: ", err);
@@ -34,7 +34,6 @@ const Messages = () => {
     socket.onmessage = (event) => {
       try {
         const message = event.data;
-        console.log("Received Message: ", message);
         setMessageArray((prev) => [...prev, message]);
       } catch (err) {
         console.error(err);
@@ -44,6 +43,14 @@ const Messages = () => {
 
     socket.onclose = () => {
       console.log("Disconnected from the server");
+    };
+
+    // The following is the clean up function for websocket connection.
+    return () => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        console.log("WebSocket connection closed (cleanup function)");
+      }
     };
   }, []);
 
@@ -62,7 +69,7 @@ const Messages = () => {
       </div>
 
       {/* Messages Section */}
-      <div className="flex-1 overflow-y-auto mb-3 space-y-4">
+      <div className="flex-auto overflow-y-auto mb-3 space-y-4 ">
         {messageArray.length !== 0 ? (
           messageArray.map((message, index) => (
             <div
@@ -71,6 +78,7 @@ const Messages = () => {
                 index % 2 === 0 ? "justify-start" : "justify-end"
               }`}
             >
+              {/* The following is the message box div*/}
               <div
                 className={`p-3 rounded-lg shadow-md ${
                   index % 2 === 0
@@ -83,7 +91,7 @@ const Messages = () => {
             </div>
           ))
         ) : (
-          <div className="text-center 0 text-gray-500">No messages yet</div>
+          <div className="text-center 0 text-gray-500 ">No messages yet</div>
         )}
       </div>
 

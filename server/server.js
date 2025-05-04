@@ -15,6 +15,8 @@ const wss = new WebSocketServer({ server: server });
 const clients = new Map();
 const messages = [];
 
+// clients = {1: "2346u62zs", 2: "24367xyz7234pq"}
+
 wss.on("connection", (temp) => {
   const clientId = uuidv4();
   temp.clientId = clientId;
@@ -24,12 +26,12 @@ wss.on("connection", (temp) => {
 
   // runs when the server sends a message.
   temp.on("message", (message) => {
+    console.log("Message received from the client !");
     const stringMessage = message.toString();
-    console.log(`Received message from client ${clientId}: ${stringMessage}`);
 
     clients.forEach((client, id) => {
       // Only send to other clients, not the sender
-      if (id !== clientId && client.readyState === WebSocket.OPEN) {
+      if (client.readyState === WebSocket.OPEN) {
         client.send(stringMessage);
       }
     });
